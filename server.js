@@ -19,6 +19,7 @@ app.use(cors({
   allowedHeaders: ["Content-Type"]
 }));
 
+app.options("*",cors());
 const filePath = path.join(__dirname, "template", "release-template.docx");
 
 const TEMPLATE_PATH = filePath;
