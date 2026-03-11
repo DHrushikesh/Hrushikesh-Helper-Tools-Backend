@@ -13,6 +13,14 @@ const app = express();
 
 app.use(express.json());
 
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "https://dhr-helper.netlify.app");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  next();
+});
+
 app.use(cors({
   origin: ["http://localhost:5173","https://dhr-helper.netlify.app"],
   methods: ["GET", "POST", "OPTIONS"],
