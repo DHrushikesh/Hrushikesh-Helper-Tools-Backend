@@ -12,7 +12,9 @@ const app = express();
 
 app.use(express.json());
 
-const TEMPLATE_PATH = "./template/release-template.docx";
+const filePath = path.join(__dirname, 'template', 'release-template.docx');
+
+const TEMPLATE_PATH = filePath;
 
 
 function extractRequestFields(obj) {
