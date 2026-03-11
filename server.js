@@ -164,6 +164,10 @@ app.post("/generate-release-notes", (req, res) => {
 module.exports =app;
 
 
-app.listen(5000, () => {
-  console.log("Release Notes Generator running on port 5000");
-});
+if (process.env.NODE_ENV !== "production") {
+  app.listen(5000, () => {
+    console.log("Release Notes Generator running on port 5000");
+  });
+}
+
+module.exports = app;
