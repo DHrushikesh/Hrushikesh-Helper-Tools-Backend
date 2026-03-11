@@ -12,177 +12,139 @@ const app = express();
 
 app.use(express.json());
 
-const filePath = path.join(__dirname, 'template', 'release-template.docx');
+const filePath = path.join(__dirname, "template", "release-template.docx");
 
 const TEMPLATE_PATH = filePath;
 
-
 function extractRequestFields(obj) {
+  let rows = [];
 
-    let rows = [];
+  function traverse(current, parent = "") {
+    for (let key in current) {
+      const value = current[key];
 
-    function traverse(current, parent = "") {
+      const fieldName = parent ? `${parent}.${key}` : key;
 
-        for (let key in current) {
+      let type = typeof value;
 
-            const value = current[key];
+      if (Array.isArray(value)) {
+        type = "array";
+      } else if (type === "object" && value !== null) {
+        type = "object";
+      }
 
-            const fieldName = parent ? `${parent}.${key}` : key;
+      rows.push({
+        sno: rows.length + 1,
 
-            let type = typeof value;
+        field: fieldName,
 
-            if (Array.isArray(value)) {
+        type: type,
 
-                type = "array";
+        mandatory: "M",
 
-            }
+        description: "",
+      });
 
-            else if (type === "object" && value !== null) {
-
-                type = "object";
-
-            }
-
-            rows.push({
-
-                sno: rows.length + 1,
-
-                field: fieldName,
-
-                type: type,
-
-                mandatory: "M",
-
-                description: ""
-
-            });
-
-            if (type === "object") {
-
-                traverse(value, fieldName);
-
-            }
-
-        }
-
+      if (type === "object") {
+        traverse(value, fieldName);
+      }
     }
+  }
 
-    traverse(obj);
+  traverse(obj);
 
-    return rows;
-
+  return rows;
 }
-
 
 // -------- API ----------
 
 app.post("/generate-release-notes", (req, res) => {
+  const {
+    version,
 
-    const {
+    date,
 
-        version,
+    apiName,
 
-        date,
+    url,
 
-        apiName,
+    request,
 
-        url,
+    response,
 
-        request,
+    environment,
 
-        response,
+    remarks,
 
-        environment,
+    Description,
+  } = req.body;
 
-        remarks,
+  try {
+    const content = fs.readFileSync(TEMPLATE_PATH, "binary");
 
-        Description
+    const zip = new PizZip(content);
 
-    } = req.body;
+    const doc = new Docxtemplater(zip, {
+      paragraphLoop: true,
 
-    try {
+      linebreaks: true,
+    });
 
-        const content = fs.readFileSync(TEMPLATE_PATH, "binary");
+    // 🔹 Convert request JSON → professional table
 
-        const zip = new PizZip(content);
+    const requestTable = extractRequestFields(request);
 
-        const doc = new Docxtemplater(zip, {
+    doc.setData({
+      version,
 
-            paragraphLoop: true,
+      date,
 
-            linebreaks: true
+      apiName,
 
-        });
+      Description,
 
+      url,
 
-        // 🔹 Convert request JSON → professional table
+      request: JSON.stringify(request, null, 2),
 
-        const requestTable = extractRequestFields(request);
+      response: JSON.stringify(response, null, 2),
 
+      environment,
 
-        doc.setData({
+      remarks,
 
-            version,
+      requestTable,
+    });
 
-            date,
+    doc.render();
 
-            apiName,
+    const buf = doc.getZip().generate({
+      type: "nodebuffer",
 
-            Description,
-
-            url,
-
-            request: JSON.stringify(request, null, 2),
-
-            response: JSON.stringify(response, null, 2),
-
-            environment,
-
-            remarks,
-
-            requestTable
-
-        });
+      compression: "DEFLATE",
+    });
 
 
-        doc.render();
+    const fileName = `${apiName}-release-notes-${version}.docx`;
 
+    // Send the file directly without saving to disk
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    );
+    res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+    res.send(buf);
+  } catch (error) {
+    console.error(error);
 
-        const buf = doc.getZip().generate({
+    res.status(500).json({
+      message: "Error generating release notes",
 
-            type: "nodebuffer",
-
-            compression: "DEFLATE"
-
-        });
-
-        // const fileName = `${apiName}-release-notes-${version}.docx`;
-
-        // const outputPath = path.join(__dirname, "output", fileName);
-
-        // fs.writeFileSync(outputPath, buf);
-
-        res.download(outputPath);
-
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-
-            message: "Error generating release notes",
-
-            error: error.message
-
-        });
-
-    }
-
+      error: error.message,
+    });
+  }
 });
 
-
 app.listen(5000, () => {
-
-    console.log("Release Notes Generator running on port 5000");
-
+  console.log("Release Notes Generator running on port 5000");
 });
