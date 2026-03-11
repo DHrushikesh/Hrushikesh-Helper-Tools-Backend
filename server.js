@@ -161,6 +161,9 @@ app.post("/generate-release-notes", (req, res) => {
   }
 });
 
-app.listen(5000, () => {
-  console.log("Release Notes Generator running on port 5000");
-});
+module.exports =app;
+
+
+// app.listen(5000, () => {
+//   console.log("Release Notes Generator running on port 5000");
+// });
