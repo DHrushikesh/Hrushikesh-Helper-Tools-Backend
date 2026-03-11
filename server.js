@@ -156,11 +156,11 @@ app.post("/generate-release-notes", (req, res) => {
 
         });
 
-        const fileName = `${apiName}-release-notes-${version}.docx`;
+        // const fileName = `${apiName}-release-notes-${version}.docx`;
 
-        const outputPath = path.join(__dirname, "output", fileName);
+        // const outputPath = path.join(__dirname, "output", fileName);
 
-        fs.writeFileSync(outputPath, buf);
+        // fs.writeFileSync(outputPath, buf);
 
         res.download(outputPath);
 
