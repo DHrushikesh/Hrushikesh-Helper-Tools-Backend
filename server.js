@@ -27,6 +27,9 @@ app.use(cors({
   allowedHeaders: ["Content-Type"]
 }));
 
+app.options('/generate-releasae-notes',(req,res)=>{
+  res.status(204).end();
+})
 
 const filePath = path.join(__dirname, "template", "release-template.docx");
 
