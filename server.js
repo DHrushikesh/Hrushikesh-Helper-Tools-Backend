@@ -27,7 +27,7 @@ app.use(cors({
   allowedHeaders: ["Content-Type"]
 }));
 
-app.options("*",cors());
+
 const filePath = path.join(__dirname, "template", "release-template.docx");
 
 const TEMPLATE_PATH = filePath;
@@ -164,6 +164,6 @@ app.post("/generate-release-notes", (req, res) => {
 module.exports =app;
 
 
-// app.listen(5000, () => {
-//   console.log("Release Notes Generator running on port 5000");
-// });
+app.listen(5000, () => {
+  console.log("Release Notes Generator running on port 5000");
+});
