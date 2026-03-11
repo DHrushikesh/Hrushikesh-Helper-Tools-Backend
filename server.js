@@ -12,6 +12,12 @@ const app = express();
 
 app.use(express.json());
 
+app.use(cors({
+  origin: ["http://localhost:5173","https://dhr-helper.netlify.app"],
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"]
+}));
+
 const filePath = path.join(__dirname, "template", "release-template.docx");
 
 const TEMPLATE_PATH = filePath;
