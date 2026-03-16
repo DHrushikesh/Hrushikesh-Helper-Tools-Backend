@@ -13,6 +13,15 @@ const app = express();
 
 app.use(express.json());
 
+app.set('trust proxy', true);
+
+// Adding HSTS handling
+app.use((req, res, next) => {
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  next();
+});
+
+
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "https://dhr-helper.netlify.app");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
