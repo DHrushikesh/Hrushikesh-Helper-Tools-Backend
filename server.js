@@ -30,7 +30,6 @@ app.use((req, res, next) => {
   next();
 });
 
-  console.log("BODY:", req.body);
 
 app.use(cors({
   origin: ["http://localhost:5173","https://dhr-helper.netlify.app"],
@@ -108,6 +107,9 @@ app.post("/generate-release-notes", (req, res) => {
 
     Description,
   } = req.body;
+
+  
+  console.log("BODY:", req.body);
 
   try {
     const content = fs.readFileSync(TEMPLATE_PATH, "binary");
