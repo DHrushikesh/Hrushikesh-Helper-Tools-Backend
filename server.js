@@ -30,6 +30,8 @@ app.use((req, res, next) => {
   next();
 });
 
+  console.log("BODY:", req.body);
+
 app.use(cors({
   origin: ["http://localhost:5173","https://dhr-helper.netlify.app"],
   methods: ["GET", "POST", "OPTIONS"],
